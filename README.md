@@ -115,6 +115,95 @@ Loaded songs: 18
 
 **Screenshot or video** *(optional)*: <!-- Insert a screenshot or demo video link here -->
 
+### Multiple User Profiles
+
+Real terminal output from running the recommender (`k=5`) against three distinct
+taste profiles. Each block is the unedited output for that profile.
+
+**High-Energy Pop** — `{genre: pop, mood: happy, energy: 0.85}`
+
+```
+Loaded songs: 18
+
+============================================================
+                    TOP RECOMMENDATIONS
+           for genre=pop, mood=happy, energy=0.85
+============================================================
+
+1. Sunrise City — Neon Echo                           3.97
+   why: genre match (+2.0), mood match (+1.0), energy similarity (+0.97)
+
+2. Gym Hero — Max Pulse                               2.92
+   why: genre match (+2.0), energy similarity (+0.92)
+
+3. Rooftop Lights — Indigo Parade                     1.91
+   why: mood match (+1.0), energy similarity (+0.91)
+
+4. Concrete Kingdom — Vell Kato                       0.95
+   why: energy similarity (+0.95)
+
+5. Storm Runner — Voltline                            0.94
+   why: energy similarity (+0.94)
+
+============================================================
+```
+
+**Chill Lofi** — `{genre: lofi, mood: chill, energy: 0.40}`
+
+```
+Loaded songs: 18
+
+============================================================
+                    TOP RECOMMENDATIONS
+           for genre=lofi, mood=chill, energy=0.4
+============================================================
+
+1. Midnight Coding — LoRoom                           3.98
+   why: genre match (+2.0), mood match (+1.0), energy similarity (+0.98)
+
+2. Library Rain — Paper Lanterns                      3.95
+   why: genre match (+2.0), mood match (+1.0), energy similarity (+0.95)
+
+3. Focus Flow — LoRoom                                3.00
+   why: genre match (+2.0), energy similarity (+1.00)
+
+4. Spacewalk Thoughts — Orbit Bloom                   1.88
+   why: mood match (+1.0), energy similarity (+0.88)
+
+5. Paper Boats — Wren & Willow                        0.98
+   why: energy similarity (+0.98)
+
+============================================================
+```
+
+**Deep Intense Rock** — `{genre: rock, mood: intense, energy: 0.90}`
+
+```
+Loaded songs: 18
+
+============================================================
+                    TOP RECOMMENDATIONS
+          for genre=rock, mood=intense, energy=0.9
+============================================================
+
+1. Storm Runner — Voltline                            3.99
+   why: genre match (+2.0), mood match (+1.0), energy similarity (+0.99)
+
+2. Gym Hero — Max Pulse                               1.97
+   why: mood match (+1.0), energy similarity (+0.97)
+
+3. Neon Overdrive — Pulsewave                         0.95
+   why: energy similarity (+0.95)
+
+4. Iron Verdict — Ashfall                             0.92
+   why: energy similarity (+0.92)
+
+5. Sunrise City — Neon Echo                           0.92
+   why: energy similarity (+0.92)
+
+============================================================
+```
+
 ---
 
 ## Experiments You Tried

@@ -2,14 +2,25 @@
 
 ## 1. Model Name  
 
-Give your model a short, descriptive name.  
-Example: **VibeFinder 1.0**  
+**TheVibe 1.0**
+
+It checks the "vibe" of each song and matches it to what you're in the mood for.
 
 ---
 
 ## 2. Intended Use  
 
 Describe what your recommender is designed to do and who it is for. 
+
+**Goal / Task.** TheVibe tries to guess which songs a listener will like. You tell it your favorite genre, your favorite mood, and how much energy you want. It then picks the songs that fit you best and puts them in order, best match first.
+
+**Who it's for.** This is a classroom project, not a real app. It runs on a tiny made-up song list. It is meant for learning how recommenders work.
+
+**What it assumes.** It assumes you can name one favorite genre and one favorite mood. It also assumes your taste fits into three things: genre, mood, and energy. Real people are more complicated than that.
+
+**Intended for:** exploring and explaining how a simple recommender scores songs.
+
+**Not intended for:** real music apps, real playlists, or any choice that actually matters. It has too few songs and ignores a lot of what makes a song feel a certain way.
 
 Prompts:  
 
@@ -23,12 +34,17 @@ Prompts:
 
 Explain your scoring approach in simple language.  
 
-Prompts:  
+**Algorithm summary.** TheVibe gives every song a score, then sorts the songs from highest score to lowest. The top few are your recommendations.
 
-- What features of each song are used (genre, energy, mood, etc.)  
-- What user preferences are considered  
-- How does the model turn those into a score  
-- What changes did you make from the starter logic  
+Each song earns points three ways:
+
+- **Genre:** if the song's genre matches yours, it gets 1 point.
+- **Mood:** if the song's mood matches yours, it gets 1 point.
+- **Energy:** the closer the song's energy is to what you asked for, the more points it gets. A perfect match is worth 2 points, and it drops toward 0 as the energy gets further away.
+
+Add those up and you get the song's score. A perfect song scores 4.
+
+**What I changed from the starter.** At first, genre was the biggest deal (worth 2 points) and energy was smaller (worth up to 1). I flipped that. Now genre is worth 1 and energy is worth up to 2. This made energy the strongest signal. It changed the results, but it did not always make them better — it just moved the balance around.
 
 Avoid code here. Pretend you are explaining the idea to a friend who does not program.
 
@@ -38,12 +54,13 @@ Avoid code here. Pretend you are explaining the idea to a friend who does not pr
 
 Describe the dataset the model uses.  
 
-Prompts:  
+**Data used.** The song list has 18 songs. It came with the starter project. I did not add or remove any songs.
 
-- How many songs are in the catalog  
-- What genres or moods are represented  
-- Did you add or remove data  
-- Are there parts of musical taste missing in the dataset  
+**Features.** Each song has a title, artist, genre, mood, energy, tempo, valence (how happy or sad it sounds), danceability, and acousticness. The scoring only uses three of these: genre, mood, and energy. The rest sit unused.
+
+**Genres and moods.** There are 15 genres, but 13 of them have only one song. Only lofi (3 songs) and pop (2 songs) have more than one. Moods are spread thin too — most moods appear just once.
+
+**What's missing.** The list is very small, so most tastes have few real matches. It also has no way to describe things like "calm but happy," because those song details are not part of the score. So parts of real musical taste are simply left out.
 
 ---
 
@@ -51,17 +68,19 @@ Prompts:
 
 Where does your system seem to work well  
 
-Prompts:  
+**Strengths.** TheVibe works best for listeners whose genre has more than one song, like lofi and pop fans. The lofi fan gets a whole list of calm, low-energy songs that fit, and that matched what I expected.
 
-- User types for which it gives reasonable results  
-- Any patterns you think your scoring captures correctly  
-- Cases where the recommendations matched your intuition  
+The top pick is usually right. When a song matches on genre, mood, and energy all at once, it wins — which is exactly what should happen.
+
+It also does a good job of telling different listeners apart. A calm listener and a loud listener get completely different lists, so the energy setting clearly works. And every recommendation comes with a short "why" line, so you can see the reason behind each pick.
 
 ---
 
 ## 6. Limitations and Bias 
 
 Where the system struggles or behaves unfairly. 
+
+The biggest weakness I found is that some genres are badly underrepresented, which makes the system favor certain users. Out of 15 genres, 13 have only one song each, while lofi has three and pop has two. Because of this, a lofi fan gets several real matches, but a metal or country fan gets one good match and then filler songs that only share a similar energy level. The scoring also ignores features it could use, like acousticness and valence, so a "calm but happy" listener can't really be matched. In short, how good your recommendations are depends more on whether your genre is well represented than on the scoring logic itself.
 
 Prompts:  
 
@@ -76,12 +95,23 @@ Prompts:
 
 How you checked whether the recommender behaved as expected. 
 
-Prompts:  
+**Profiles I tested.** I ran three made-up listeners through the recommender and looked at their top 5 songs:
 
-- Which user profiles you tested  
-- What you looked for in the recommendations  
-- What surprised you  
-- Any simple tests or comparisons you ran  
+- **High-Energy Pop** — likes pop, a happy mood, and high energy (0.85)
+- **Chill Lofi** — likes lofi, a chill mood, and low energy (0.40)
+- **Deep Intense Rock** — likes rock, an intense mood, and high energy (0.90)
+
+**The thing that surprised me: why "Gym Hero" keeps showing up for people who just want Happy Pop.** Gym Hero is a pop song, but its mood is "intense," not "happy" — it's basically a workout track. Yet it lands at #2 for the Happy Pop listener. The reason is that the system gives a song points for three separate things (matching genre, matching mood, and having a similar energy level), and a song only needs to do well on *some* of them to rank high. Gym Hero is a real pop song (so it earns the genre points) and it's very high energy (so it earns almost all the energy points), and those two wins together are enough to beat songs that actually are happy. The one thing it gets wrong — the mood — isn't punished hard enough to keep it down. So the listener asked for "happy pop" and got a "pop song that is loud," because two out of three matches was enough.
+
+**Comparing the profiles (each pair):**
+
+- **High-Energy Pop vs. Chill Lofi:** These are near opposites, and the outputs prove the energy setting is doing real work. Happy Pop's list is full of loud songs (Sunrise City, Gym Hero, all around 0.8–0.9 energy), while Chill Lofi's list is full of quiet ones (Midnight Coding, Library Rain, around 0.3–0.4 energy). This makes sense: when one listener wants high energy and the other wants low, the "energy gap" score pulls them toward completely different ends of the catalog.
+
+- **High-Energy Pop vs. Deep Intense Rock:** Both want high energy, and you can see them overlap — Gym Hero and Storm Runner show up on *both* lists. The difference is which one comes first: the pop fan gets Sunrise City on top, the rock fan gets Storm Runner on top, because the genre and mood matches act as the tie-breaker between two people who both like loud music. This makes sense and shows genre/mood still matter even when energy is similar.
+
+- **Chill Lofi vs. Deep Intense Rock:** These two share almost nothing — one wants calm and quiet, the other wants loud and aggressive — and their lists have zero songs in common. That is the clearest sign the system is really separating listeners by taste, not just handing everyone the same popular songs.
+
+**What this tells me:** the recommender is behaving as designed and the top pick is usually right, but the results also reveal its main flaw — a song can rank high by matching genre and energy while completely missing the mood the person asked for, which is exactly the Gym Hero problem above.
 
 No need for numeric metrics unless you created some.
 
@@ -91,12 +121,13 @@ No need for numeric metrics unless you created some.
 
 Ideas for how you would improve the model next.  
 
-Prompts:  
+**Ideas for improvement.**
 
-- Additional features or preferences  
-- Better ways to explain recommendations  
-- Improving diversity among the top results  
-- Handling more complex user tastes  
+1. **Add more songs.** The biggest problem is the tiny list. More songs per genre would give everyone real matches, not just lofi and pop fans.
+
+2. **Use the features I'm ignoring.** Things like acousticness and valence are already in the data. Using them would let me match tastes like "calm but happy" or "acoustic music," which the system can't do now.
+
+3. **Make mood count for more.** Right now a song can rank high while missing the mood you asked for (the Gym Hero problem). Giving mood more weight, or requiring it to match, would fix that.
 
 ---
 
@@ -104,8 +135,4 @@ Prompts:
 
 A few sentences about your experience.  
 
-Prompts:  
-
-- What you learned about recommender systems  
-- Something unexpected or interesting you discovered  
-- How this changed the way you think about music recommendation apps  
+My biggest learning moment was that the data mattered more than the scoring. Most of the unfairness came from the song list being small and uneven, not the rule. AI tools helped me run tests fast and spot patterns, but I still had to check their claims, since once a change was called "more accurate" when it really wasn't. I was surprised that just adding up points and sorting still felt like a real recommendation, even though it doesn't understand music at all. If I kept going, I'd add more songs, use more song details like acousticness, and make mood count for more.

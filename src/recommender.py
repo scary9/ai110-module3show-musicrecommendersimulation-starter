@@ -64,26 +64,36 @@ def load_songs(csv_path: str) -> List[Dict]:
     return songs
 
 def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
-    """Score one song against user prefs (genre +2, mood +1, energy similarity), returning (score, reasons)."""
+    """Score one song against user prefs (genre +1, mood +1, energy similarity x2), returning (score, reasons)."""
     score = 0.0
     reasons: List[str] = []
 
-    # Genre match: all-or-nothing, weighted highest.
+    # Genre match: all-or-nothing. Halved from its original +2.0 so genre no
+    # longer dominates; it now carries the same weight as a mood match.
     if song["genre"] == user_prefs.get("genre"):
-        score += 2.0
-        reasons.append("genre match (+2.0)")
+        score += 1.0
+        reasons.append("genre match (+1.0)")
 
-    # Mood match: all-or-nothing, worth half a genre match.
+    # Mood match: all-or-nothing, equal to a genre match under the new weights.
     if song["mood"] == user_prefs.get("mood"):
         score += 1.0
         reasons.append("mood match (+1.0)")
 
-    # Energy similarity: partial credit for how close the song's energy is
-    # to the user's target. 1.0 when identical, shrinking toward 0.0 as it
+    # Energy similarity: partial credit for how close the song's energy is to
+    # the user's target, doubled so energy is now the strongest single signal.
+    # A perfect match is worth 2.0, shrinking toward 0.0 as the song's energy
     # drifts a full 1.0 apart (in either direction).
     target_energy = user_prefs.get("energy")
     if target_energy is not None:
-        energy_points = 1.0 - abs(target_energy - song["energy"])
+        # Clamp the target into the valid 0.0-1.0 range so out-of-range or
+        # non-numeric input can't produce huge negative scores or crash.
+        try:
+            target_energy = min(1.0, max(0.0, float(target_energy)))
+        except (TypeError, ValueError):
+            target_energy = None
+
+    if target_energy is not None:
+        energy_points = 2.0 * (1.0 - abs(target_energy - song["energy"]))
         score += energy_points
         reasons.append(f"energy similarity (+{energy_points:.2f})")
 
@@ -98,5 +108,9 @@ def recommend_songs(user_prefs: Dict, songs: List[Dict], k: int = 5) -> List[Tup
         scored.append((song, score, explanation))
 
     # Sort by the numeric score, highest first, and keep the top k.
+    # Guard against a negative k, which would otherwise slice from the end
+    # and silently return the wrong songs.
+    if k < 0:
+        k = 0
     scored.sort(key=lambda item: item[1], reverse=True)
     return scored[:k]

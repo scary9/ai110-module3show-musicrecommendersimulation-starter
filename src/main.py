@@ -9,6 +9,8 @@ You will implement the functions in recommender.py:
 - recommend_songs
 """
 
+from tabulate import tabulate
+
 from src.recommender import load_songs, recommend_songs
 
 
@@ -22,26 +24,26 @@ def main() -> None:
     recommendations = recommend_songs(user_prefs, songs, k=5)
 
     # --- Terminal layout ---
-    width = 60
     print()
-    print("=" * width)
-    print("TOP RECOMMENDATIONS".center(width))
+    print("TOP RECOMMENDATIONS")
     print(
         f"for genre={user_prefs['genre']}, "
         f"mood={user_prefs['mood']}, "
-        f"energy={user_prefs['energy']}".center(width)
+        f"energy={user_prefs['energy']}"
     )
-    print("=" * width)
 
-    for rank, (song, score, explanation) in enumerate(recommendations, start=1):
-        # Line 1: rank, title + artist (left), score (right-aligned).
-        title = f"{song['title']} — {song['artist']}"
-        header = f"{rank}. {title}"
-        print(f"\n{header:<48}{score:>10.2f}")
-        # Line 2: the reasons that produced the score, indented under it.
-        print(f"   why: {explanation}")
-
-    print("\n" + "=" * width)
+    # Build one table row per recommendation. The final "Why" column carries the
+    # reasons string that recommend_songs produced for each score.
+    rows = [
+        [rank, song["title"], song["artist"], f"{score:.2f}", explanation]
+        for rank, (song, score, explanation) in enumerate(recommendations, start=1)
+    ]
+    print(tabulate(
+        rows,
+        headers=["#", "Title", "Artist", "Score", "Why (reasons)"],
+        tablefmt="grid",
+        disable_numparse=True,  # keep 2.00 / 1.90 instead of 2 / 1.9
+    ))
 
 
 if __name__ == "__main__":
